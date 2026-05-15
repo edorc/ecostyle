@@ -1,0 +1,1230 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>騎遇古韻 · 慢遊時光 — 台南府城慢遊服務</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;600;700;900&family=Ma+Shan+Zheng&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --red: #8B1A1A;
+    --dark-red: #5C0E0E;
+    --gold: #C9A84C;
+    --gold-light: #E8CB7A;
+    --cream: #F5EDD6;
+    --parchment: #EDE0C4;
+    --dark-brown: #2C1810;
+    --ink: #1A0F08;
+    --shadow-red: rgba(139,26,26,0.3);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background-color: var(--cream);
+    color: var(--ink);
+    font-family: 'Noto Serif TC', serif;
+    overflow-x: hidden;
+    cursor: default;
+  }
+
+  /* Custom cursor */
+  .cursor {
+    width: 20px; height: 20px;
+    border: 2px solid var(--red);
+    border-radius: 50%;
+    position: fixed;
+    pointer-events: none;
+    z-index: 9999;
+    transition: transform 0.1s, background 0.2s;
+    mix-blend-mode: multiply;
+  }
+  .cursor.active { transform: scale(2); background: rgba(139,26,26,0.2); }
+
+  /* ── BACKGROUND TEXTURE ── */
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background-image:
+      url("data:image/svg+xml,%3Csvg width='80' height='80' viewBox='0 0 80 80' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' stroke='%23C9A84C' stroke-width='0.3' opacity='0.15'%3E%3Crect x='5' y='5' width='70' height='70'/%3E%3Crect x='15' y='15' width='50' height='50'/%3E%3Cline x1='5' y1='5' x2='15' y2='15'/%3E%3Cline x1='75' y1='5' x2='65' y2='15'/%3E%3Cline x1='5' y1='75' x2='15' y2='65'/%3E%3Cline x1='75' y1='75' x2='65' y2='65'/%3E%3C/g%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ── FLOATING LANTERNS ── */
+  .lantern-container {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    pointer-events: none; z-index: 1; overflow: hidden;
+  }
+  .lantern {
+    position: absolute;
+    font-size: 2rem;
+    animation: floatLantern linear infinite;
+    opacity: 0.6;
+  }
+  @keyframes floatLantern {
+    0% { transform: translateY(100vh) rotate(-5deg); opacity: 0; }
+    10% { opacity: 0.6; }
+    90% { opacity: 0.6; }
+    100% { transform: translateY(-10vh) rotate(5deg); opacity: 0; }
+  }
+
+  /* ── PETALS ── */
+  .petal {
+    position: absolute;
+    width: 8px; height: 12px;
+    background: radial-gradient(ellipse, #f4a7b9, #e91e63);
+    border-radius: 50% 0 50% 0;
+    animation: fallPetal linear infinite;
+    opacity: 0;
+  }
+  @keyframes fallPetal {
+    0% { transform: translateY(-20px) rotate(0deg); opacity: 0; }
+    10% { opacity: 0.8; }
+    100% { transform: translateY(100vh) rotate(360deg) translateX(80px); opacity: 0; }
+  }
+
+  /* ── HEADER / HERO ── */
+  header {
+    position: relative; z-index: 10;
+    min-height: 100vh;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    text-align: center;
+    padding: 2rem;
+    background:
+      radial-gradient(ellipse at 20% 30%, rgba(139,26,26,0.12) 0%, transparent 60%),
+      radial-gradient(ellipse at 80% 70%, rgba(201,168,76,0.15) 0%, transparent 60%),
+      var(--cream);
+    overflow: hidden;
+  }
+
+  /* Red border frame */
+  header::before {
+    content: '';
+    position: absolute; inset: 20px;
+    border: 2px solid var(--gold);
+    pointer-events: none;
+    z-index: 2;
+  }
+  header::after {
+    content: '';
+    position: absolute; inset: 26px;
+    border: 1px solid rgba(201,168,76,0.4);
+    pointer-events: none;
+    z-index: 2;
+  }
+
+  .corner-ornament {
+    position: absolute;
+    width: 60px; height: 60px;
+    z-index: 3;
+  }
+  .corner-ornament svg { width: 100%; height: 100%; }
+  .corner-ornament.tl { top: 12px; left: 12px; }
+  .corner-ornament.tr { top: 12px; right: 12px; transform: scaleX(-1); }
+  .corner-ornament.bl { bottom: 12px; left: 12px; transform: scaleY(-1); }
+  .corner-ornament.br { bottom: 12px; right: 12px; transform: scale(-1); }
+
+  .hero-badge {
+    display: inline-block;
+    background: var(--red);
+    color: var(--gold-light);
+    font-size: 0.85rem;
+    letter-spacing: 0.3em;
+    padding: 0.4rem 1.5rem;
+    margin-bottom: 1.5rem;
+    border: 1px solid var(--gold);
+    animation: fadeDown 1s ease both;
+  }
+
+  .hero-title {
+    font-family: 'Ma Shan Zheng', serif;
+    font-size: clamp(4rem, 12vw, 9rem);
+    color: var(--dark-red);
+    line-height: 1;
+    text-shadow: 4px 4px 0 rgba(201,168,76,0.3), 8px 8px 20px rgba(0,0,0,0.15);
+    animation: fadeUp 1.2s ease 0.2s both;
+    position: relative;
+  }
+
+  .hero-subtitle {
+    font-size: clamp(1rem, 2.5vw, 1.4rem);
+    color: var(--dark-brown);
+    letter-spacing: 0.4em;
+    margin: 1.5rem 0;
+    animation: fadeUp 1.2s ease 0.5s both;
+    font-weight: 600;
+  }
+  .hero-subtitle span { color: var(--red); }
+
+  .hero-desc {
+    max-width: 600px;
+    font-size: 1rem;
+    color: #5a3e28;
+    line-height: 2;
+    margin: 0 auto 2.5rem;
+    animation: fadeUp 1.2s ease 0.7s both;
+  }
+
+  .scroll-cta {
+    display: inline-flex; flex-direction: column; align-items: center; gap: 0.5rem;
+    color: var(--red);
+    font-size: 0.85rem;
+    letter-spacing: 0.2em;
+    animation: fadeUp 1.2s ease 1s both;
+    cursor: pointer;
+  }
+  .scroll-cta .arrow {
+    width: 30px; height: 30px;
+    border: 2px solid var(--red);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    animation: bounce 2s ease infinite;
+  }
+
+  @keyframes bounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(8px)} }
+  @keyframes fadeUp { from{opacity:0;transform:translateY(30px)} to{opacity:1;transform:translateY(0)} }
+  @keyframes fadeDown { from{opacity:0;transform:translateY(-20px)} to{opacity:1;transform:translateY(0)} }
+
+  /* ── NAV ── */
+  nav {
+    position: sticky; top: 0; 
+    z-index: 100;
+    background: rgba(139,26,26,0.95);
+    backdrop-filter: blur(10px);
+    border-bottom: 2px solid var(--gold);
+    padding: 0.8rem 2rem;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .nav-logo {
+    font-family: 'Ma Shan Zheng', serif;
+    font-size: 1.5rem;
+    color: var(--gold-light);
+    letter-spacing: 0.1em;
+  }
+  .nav-links {
+    display: flex; gap: 2rem; list-style: none;
+  }
+  .nav-links a {
+    color: var(--cream);
+    text-decoration: none;
+    font-size: 0.9rem;
+    letter-spacing: 0.15em;
+    transition: color 0.3s;
+    position: relative;
+  }
+  .nav-links a::after {
+    content: ''; position: absolute; bottom: -4px; left: 0;
+    width: 0; height: 1px; background: var(--gold);
+    transition: width 0.3s;
+  }
+  .nav-links a:hover { color: var(--gold-light); }
+  .nav-links a:hover::after { width: 100%; }
+  .nav-phone {
+    color: var(--gold-light);
+    font-size: 0.85rem;
+    letter-spacing: 0.1em;
+  }
+
+  /* ── SECTION BASE ── */
+  section { position: relative; z-index: 5; padding: 6rem 2rem; }
+
+  .section-header {
+    text-align: center;
+    margin-bottom: 4rem;
+  }
+  .section-tag {
+    display: inline-block;
+    color: var(--red);
+    font-size: 0.8rem;
+    letter-spacing: 0.5em;
+    margin-bottom: 0.8rem;
+    font-weight: 700;
+  }
+  .section-title {
+    font-family: 'Ma Shan Zheng', serif;
+    font-size: clamp(2.5rem, 6vw, 4rem);
+    color: var(--dark-red);
+    text-shadow: 2px 2px 8px rgba(0,0,0,0.1);
+    line-height: 1.2;
+  }
+  .section-divider {
+    display: flex; align-items: center; justify-content: center;
+    gap: 1rem; margin: 1.5rem auto; max-width: 300px;
+  }
+  .section-divider::before, .section-divider::after {
+    content: ''; flex: 1; height: 1px; background: var(--gold);
+  }
+  .section-divider span { color: var(--gold); font-size: 1.2rem; }
+
+  /* ── SERVICE CARDS ── */
+  .services-section {
+    background: linear-gradient(180deg, var(--cream) 0%, var(--parchment) 100%);
+  }
+
+  .cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2.5rem;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .service-card {
+    position: relative;
+    background: var(--cream);
+    border: 1px solid var(--gold);
+    overflow: hidden;
+    cursor: pointer;
+    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.4s;
+    transform-style: preserve-3d;
+  }
+  .service-card:hover {
+    transform: translateY(-12px) rotateX(2deg);
+    box-shadow: 0 30px 60px rgba(139,26,26,0.25), 0 0 0 2px var(--gold);
+  }
+
+  .card-top-border {
+    height: 4px;
+    background: linear-gradient(90deg, var(--dark-red), var(--gold), var(--dark-red));
+  }
+
+  .card-img-wrap {
+    position: relative;
+    overflow: hidden;
+    height: 260px;
+  }
+  .card-img-wrap img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    transition: transform 0.6s ease;
+  }
+  .service-card:hover .card-img-wrap img { transform: scale(1.08); }
+
+  .card-img-overlay {
+    position: absolute; inset: 0;
+    background: linear-gradient(to bottom, transparent 40%, rgba(44,24,16,0.7) 100%);
+  }
+
+  .card-img-label {
+    position: absolute; bottom: 1rem; left: 1rem;
+    color: var(--cream);
+    font-family: 'Ma Shan Zheng', serif;
+    font-size: 1.6rem;
+    text-shadow: 2px 2px 8px rgba(0,0,0,0.8);
+  }
+
+  .card-body {
+    padding: 1.8rem;
+  }
+
+  .card-price-badge {
+    display: inline-flex; align-items: baseline; gap: 0.3rem;
+    background: var(--red);
+    color: var(--cream);
+    padding: 0.5rem 1.2rem;
+    margin-bottom: 1.2rem;
+  }
+  .card-price-badge .amount {
+    font-size: 2rem;
+    font-weight: 900;
+    line-height: 1;
+  }
+  .card-price-badge .unit { font-size: 0.85rem; opacity: 0.9; }
+
+  .card-title {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--dark-red);
+    margin-bottom: 0.5rem;
+    letter-spacing: 0.1em;
+  }
+  .card-desc {
+    font-size: 0.9rem;
+    color: #6b4c30;
+    line-height: 1.8;
+    margin-bottom: 1.2rem;
+  }
+
+  .features-list {
+    list-style: none;
+    display: flex; flex-direction: column; gap: 0.4rem;
+  }
+  .features-list li {
+    font-size: 0.88rem;
+    color: #5a3e28;
+    display: flex; align-items: flex-start; gap: 0.5rem;
+    line-height: 1.6;
+  }
+  .features-list li::before {
+    content: '◈';
+    color: var(--gold);
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  .card-cta {
+    display: block;
+    width: 100%;
+    margin-top: 1.5rem;
+    padding: 0.9rem;
+    background: transparent;
+    border: 2px solid var(--red);
+    color: var(--red);
+    font-family: 'Noto Serif TC', serif;
+    font-size: 0.95rem;
+    font-weight: 700;
+    letter-spacing: 0.3em;
+    cursor: pointer;
+    transition: all 0.3s;
+    position: relative;
+    overflow: hidden;
+  }
+  .card-cta::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: var(--red);
+    transform: translateX(-100%);
+    transition: transform 0.3s;
+    z-index: -1;
+  }
+  .card-cta:hover { color: var(--cream); }
+  .card-cta:hover::before { transform: translateX(0); }
+
+  /* ── PLANS SECTION (bicycle packages) ── */
+  .plans-section {
+    background: var(--dark-red);
+    position: relative;
+    overflow: hidden;
+  }
+  .plans-section::before {
+    content: '';
+    position: absolute; inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' stroke='%23C9A84C' stroke-width='0.5' opacity='0.1'%3E%3Ccircle cx='30' cy='30' r='25'/%3E%3Ccircle cx='30' cy='30' r='15'/%3E%3Ccircle cx='30' cy='30' r='5'/%3E%3C/g%3E%3C/svg%3E");
+  }
+
+  .plans-section .section-tag { color: var(--gold-light); }
+  .plans-section .section-title { color: var(--cream); }
+  .plans-section .section-divider::before,
+  .plans-section .section-divider::after { background: rgba(201,168,76,0.4); }
+  .plans-section .section-divider span { color: var(--gold-light); }
+
+  .plans-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 2rem;
+    max-width: 1000px;
+    margin: 0 auto;
+  }
+
+  .plan-card {
+    background: rgba(245,237,214,0.08);
+    border: 1px solid rgba(201,168,76,0.4);
+    padding: 2rem 1.5rem;
+    text-align: center;
+    transition: all 0.4s;
+    position: relative;
+    overflow: hidden;
+  }
+  .plan-card.featured {
+    background: rgba(201,168,76,0.15);
+    border-color: var(--gold);
+    transform: scale(1.05);
+  }
+  .plan-card:hover {
+    background: rgba(245,237,214,0.15);
+    transform: translateY(-8px);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+  }
+  .plan-card.featured:hover { transform: scale(1.05) translateY(-8px); }
+
+  .plan-icon { font-size: 2.5rem; margin-bottom: 1rem; }
+  .plan-name {
+    font-family: 'Ma Shan Zheng', serif;
+    font-size: 1.8rem;
+    color: var(--gold-light);
+    margin-bottom: 0.3rem;
+  }
+  .plan-subtitle {
+    font-size: 0.8rem;
+    color: rgba(245,237,214,0.6);
+    letter-spacing: 0.3em;
+    margin-bottom: 1.5rem;
+  }
+  .plan-price {
+    font-size: 3rem;
+    font-weight: 900;
+    color: var(--cream);
+    line-height: 1;
+  }
+  .plan-price sup { font-size: 1.2rem; vertical-align: top; margin-top: 0.5rem; display: inline-block; }
+  .plan-price sub { font-size: 0.9rem; }
+  .plan-divider {
+    width: 40px; height: 1px;
+    background: var(--gold);
+    margin: 1.5rem auto;
+  }
+  .plan-features {
+    list-style: none;
+    display: flex; flex-direction: column; gap: 0.6rem;
+    text-align: left;
+  }
+  .plan-features li {
+    color: rgba(245,237,214,0.85);
+    font-size: 0.88rem;
+    line-height: 1.5;
+    display: flex; gap: 0.5rem; align-items: flex-start;
+  }
+  .plan-features li span { color: var(--gold); flex-shrink: 0; }
+
+  .plan-btn {
+    display: block;
+    width: 100%;
+    margin-top: 2rem;
+    padding: 0.8rem;
+    background: transparent;
+    border: 1px solid var(--gold);
+    color: var(--gold-light);
+    font-family: 'Noto Serif TC', serif;
+    font-size: 0.9rem;
+    letter-spacing: 0.3em;
+    cursor: pointer;
+    transition: all 0.3s;
+  }
+  .plan-btn:hover, .plan-card.featured .plan-btn {
+    background: var(--gold);
+    color: var(--dark-red);
+    font-weight: 700;
+  }
+
+  /* ── FEATURES / WHY US ── */
+  .features-section {
+    background: var(--parchment);
+  }
+
+  .features-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 2rem;
+    max-width: 1000px;
+    margin: 0 auto;
+  }
+
+  .feature-item {
+    text-align: center;
+    padding: 2rem 1rem;
+    position: relative;
+    transition: transform 0.3s;
+  }
+  .feature-item:hover { transform: translateY(-6px); }
+
+  .feature-icon-wrap {
+    width: 70px; height: 70px;
+    border: 2px solid var(--gold);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.8rem;
+    margin: 0 auto 1.2rem;
+    background: rgba(201,168,76,0.1);
+    transition: all 0.3s;
+  }
+  .feature-item:hover .feature-icon-wrap {
+    background: var(--red);
+    border-color: var(--red);
+  }
+  .feature-title {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--dark-red);
+    margin-bottom: 0.5rem;
+    letter-spacing: 0.1em;
+  }
+  .feature-text {
+    font-size: 0.85rem;
+    color: #6b4c30;
+    line-height: 1.7;
+  }
+
+  /* ── CONTACT / CTA ── */
+  .contact-section {
+    background: linear-gradient(135deg, var(--dark-red) 0%, #3d1010 100%);
+    text-align: center;
+    padding: 6rem 2rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .contact-section::before {
+    content: '龍';
+    position: absolute;
+    font-family: 'Ma Shan Zheng', serif;
+    font-size: 30vw;
+    color: rgba(255,255,255,0.02);
+    top: 50%; left: 50%;
+    transform: translate(-50%,-50%);
+    pointer-events: none;
+  }
+
+  .contact-tag { color: var(--gold-light); font-size: 0.8rem; letter-spacing: 0.5em; display: block; margin-bottom: 1rem; }
+  .contact-title {
+    font-family: 'Ma Shan Zheng', serif;
+    font-size: clamp(2.5rem, 7vw, 5rem);
+    color: var(--cream);
+    text-shadow: 0 0 40px rgba(201,168,76,0.3);
+    margin-bottom: 1rem;
+  }
+  .contact-subtitle {
+    color: rgba(245,237,214,0.7);
+    font-size: 1rem;
+    letter-spacing: 0.2em;
+    margin-bottom: 3rem;
+  }
+
+  .contact-phone {
+    display: inline-flex; align-items: center; gap: 1rem;
+    background: rgba(201,168,76,0.15);
+    border: 2px solid var(--gold);
+    padding: 1.2rem 3rem;
+    color: var(--gold-light);
+    font-size: 1.8rem;
+    font-weight: 900;
+    letter-spacing: 0.15em;
+    margin-bottom: 3rem;
+    transition: all 0.3s;
+    cursor: pointer;
+    text-decoration: none;
+  }
+  .contact-phone:hover {
+    background: var(--gold);
+    color: var(--dark-red);
+    transform: scale(1.05);
+  }
+
+  .contact-info {
+    display: flex; justify-content: center; gap: 3rem;
+    flex-wrap: wrap;
+  }
+  .info-item {
+    color: rgba(245,237,214,0.75);
+    font-size: 0.9rem;
+    line-height: 1.8;
+    letter-spacing: 0.1em;
+  }
+  .info-item strong {
+    display: block;
+    color: var(--gold-light);
+    font-size: 0.8rem;
+    letter-spacing: 0.3em;
+    margin-bottom: 0.3rem;
+  }
+
+  /* ── FOOTER ── */
+  footer {
+    background: var(--ink);
+    color: rgba(245,237,214,0.5);
+    text-align: center;
+    padding: 2rem;
+    font-size: 0.8rem;
+    letter-spacing: 0.15em;
+    border-top: 2px solid var(--dark-red);
+  }
+  footer span { color: var(--gold); }
+
+  /* ── MODAL ── */
+  .modal-overlay {
+    position: fixed; inset: 0;
+    background: rgba(26,15,8,0.85);
+    z-index: 200;
+    display: flex; align-items: center; justify-content: center;
+    padding: 1rem;
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.3s;
+    backdrop-filter: blur(4px);
+  }
+  .modal-overlay.open { opacity: 1; pointer-events: all; }
+
+  .modal {
+    background: var(--cream);
+    border: 2px solid var(--gold);
+    max-width: 600px; width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+    transform: scale(0.9) translateY(20px);
+    transition: transform 0.4s cubic-bezier(0.175,0.885,0.32,1.275);
+    position: relative;
+  }
+  .modal-overlay.open .modal { transform: scale(1) translateY(0); }
+
+  .modal-header {
+    background: var(--red);
+    padding: 1.5rem 2rem;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .modal-title {
+    font-family: 'Ma Shan Zheng', serif;
+    font-size: 1.8rem;
+    color: var(--cream);
+  }
+  .modal-close {
+    background: none; border: none;
+    color: var(--cream); font-size: 1.5rem;
+    cursor: pointer; line-height: 1;
+    opacity: 0.8; transition: opacity 0.2s;
+  }
+  .modal-close:hover { opacity: 1; }
+
+  .modal-body {
+    padding: 2rem;
+  }
+  .modal-img {
+    width: 100%; border: 1px solid rgba(201,168,76,0.3);
+    margin-bottom: 1.5rem;
+  }
+  .modal-desc {
+    font-size: 1rem;
+    color: #5a3e28;
+    line-height: 2;
+    margin-bottom: 1.5rem;
+  }
+
+  /* ── SCROLL ANIMATIONS ── */
+  .reveal {
+    opacity: 0;
+    transform: translateY(40px);
+    transition: opacity 0.7s ease, transform 0.7s ease;
+  }
+  .reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  .reveal-delay-1 { transition-delay: 0.1s; }
+  .reveal-delay-2 { transition-delay: 0.2s; }
+  .reveal-delay-3 { transition-delay: 0.3s; }
+
+  /* ── WAVE DIVIDER ── */
+  .wave-divider { overflow: hidden; line-height: 0; }
+  .wave-divider svg { display: block; width: 100%; }
+
+  /* ── MARQUEE ── */
+  .marquee-wrap {
+    background: var(--red);
+    overflow: hidden;
+    padding: 0.8rem 0;
+    border-top: 1px solid var(--gold);
+    border-bottom: 1px solid var(--gold);
+    position: relative; z-index: 10;
+  }
+  .marquee-track {
+    display: flex;
+    animation: marquee 20s linear infinite;
+    width: max-content;
+  }
+  .marquee-track span {
+    color: var(--cream);
+    font-size: 0.9rem;
+    letter-spacing: 0.3em;
+    padding: 0 3rem;
+  }
+  .marquee-track span.sep { color: var(--gold); }
+  @keyframes marquee { from{transform:translateX(0)} to{transform:translateX(-50%)} }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .nav-links { display: none; }
+    .contact-info { flex-direction: column; gap: 1.5rem; }
+  }
+</style>
+</head>
+<body>
+
+<div class="cursor" id="cursor"></div>
+
+<!-- Floating Lanterns -->
+<div class="lantern-container" id="lanternContainer"></div>
+
+<!-- ── HERO ── -->
+<header id="home">
+  <!-- Corner ornaments -->
+  <div class="corner-ornament tl">
+    <svg viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M5 5 L25 5 L25 8 L8 8 L8 25 L5 25 Z" fill="#C9A84C"/>
+      <path d="M5 5 L20 5" stroke="#C9A84C" stroke-width="2"/>
+      <path d="M5 5 L5 20" stroke="#C9A84C" stroke-width="2"/>
+      <circle cx="12" cy="12" r="3" fill="none" stroke="#C9A84C" stroke-width="1"/>
+      <path d="M15 5 Q20 10 15 15 Q10 20 5 15" stroke="#C9A84C" fill="none" stroke-width="0.8"/>
+    </svg>
+  </div>
+  <div class="corner-ornament tr">
+    <svg viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M5 5 L25 5 L25 8 L8 8 L8 25 L5 25 Z" fill="#C9A84C"/>
+      <path d="M5 5 L20 5" stroke="#C9A84C" stroke-width="2"/>
+      <path d="M5 5 L5 20" stroke="#C9A84C" stroke-width="2"/>
+      <circle cx="12" cy="12" r="3" fill="none" stroke="#C9A84C" stroke-width="1"/>
+    </svg>
+  </div>
+  <div class="corner-ornament bl">
+    <svg viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M5 5 L25 5 L25 8 L8 8 L8 25 L5 25 Z" fill="#C9A84C"/>
+      <path d="M5 5 L20 5" stroke="#C9A84C" stroke-width="2"/>
+      <path d="M5 5 L5 20" stroke="#C9A84C" stroke-width="2"/>
+      <circle cx="12" cy="12" r="3" fill="none" stroke="#C9A84C" stroke-width="1"/>
+    </svg>
+  </div>
+  <div class="corner-ornament br">
+    <svg viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M5 5 L25 5 L25 8 L8 8 L8 25 L5 25 Z" fill="#C9A84C"/>
+      <path d="M5 5 L20 5" stroke="#C9A84C" stroke-width="2"/>
+      <path d="M5 5 L5 20" stroke="#C9A84C" stroke-width="2"/>
+      <circle cx="12" cy="12" r="3" fill="none" stroke="#C9A84C" stroke-width="1"/>
+    </svg>
+  </div>
+
+  <div class="hero-badge">✦ 台南府城 · 慢遊時光 · TAINAN ECO-CYCLE ✦</div>
+  <h1 class="hero-title">騎遇古韻</h1>
+  <p class="hero-subtitle">穿梭府城 <span>·</span> 邂逅美好 <span>·</span> 自行車古鎮之旅</p>
+  <p class="hero-desc">
+    讓古老的巷弄與現代的騎行相遇，<br>
+    在台南這座千年古都，以最慢的速度，<br>
+    感受最深的文化底蘊。
+  </p>
+  <div class="scroll-cta" onclick="document.getElementById('services').scrollIntoView({behavior:'smooth'})">
+    探索服務
+    <div class="arrow">↓</div>
+  </div>
+</header>
+
+<!-- Marquee -->
+<div class="marquee-wrap">
+  <div class="marquee-track">
+    <span>騎遇古韻</span><span class="sep">✦</span>
+    <span>府城電騎</span><span class="sep">✦</span>
+    <span>行動電源租賃</span><span class="sep">✦</span>
+    <span>自行車古鎮之旅</span><span class="sep">✦</span>
+    <span>電動車古鎮之旅</span><span class="sep">✦</span>
+    <span>隨時滿電・暢遊府城</span><span class="sep">✦</span>
+    <span>預約專線：0983471364</span><span class="sep">✦</span>
+    <span>騎遇古韻</span><span class="sep">✦</span>
+    <span>府城電騎</span><span class="sep">✦</span>
+    <span>行動電源租賃</span><span class="sep">✦</span>
+    <span>自行車古鎮之旅</span><span class="sep">✦</span>
+    <span>電動車古鎮之旅</span><span class="sep">✦</span>
+    <span>隨時滿電・暢遊府城</span><span class="sep">✦</span>
+    <span>預約專線：0983471364</span><span class="sep">✦</span>
+  </div>
+</div>
+
+<!-- ── NAV ── -->
+<nav>
+  <div class="nav-logo">騎遇古韻</div>
+  <ul class="nav-links">
+    <li><a href="#services">服務項目</a></li>
+    <li><a href="#plans">套餐方案</a></li>
+    <li><a href="#why">為何選擇我們</a></li>
+    <li><a href="#contact">預約聯絡</a></li>
+  </ul>
+  <div class="nav-phone">📞 0983-471-364</div>
+</nav>
+
+<!-- ── SERVICES SECTION ── -->
+<section class="services-section" id="services">
+  <div class="section-header reveal">
+    <div class="section-tag">✦ 我們的服務 OUR SERVICES ✦</div>
+    <h2 class="section-title">三大精選體驗</h2>
+    <div class="section-divider"><span>❦</span></div>
+    <p style="color:#6b4c30; font-size:1rem; letter-spacing:0.1em;">精心打造每一段旅程，讓您的台南之行成為難忘的美好回憶</p>
+  </div>
+
+  <div class="cards-grid">
+    <!-- Card 1: Power Bank -->
+    <div class="service-card reveal reveal-delay-1" onclick="openModal('powerbank')">
+      <div class="card-top-border"></div>
+      <div class="card-img-wrap">
+        <img src="3.png" alt="行動電源租賃" loading="lazy">
+        <div class="card-img-overlay"></div>
+        <div class="card-img-label">行動電源租賃</div>
+      </div>
+      <div class="card-body">
+        <div class="card-price-badge">
+          <span class="amount">800</span>
+          <span class="unit">NTD</span>
+        </div>
+        <div class="card-title">府城電騎 · 隨時滿電</div>
+        <p class="card-desc">暢遊府城不斷電！專為旅人設計的共享行動電源服務，讓您隨時隨地保持電量滿滿，盡情記錄台南的每個精彩瞬間。</p>
+        <ul class="features-list">
+          <li>隨時隨地輕鬆借還，超便利</li>
+          <li>適用多種充電設備（含三頭線）</li>
+          <li>專屬府城地標圖騰設計</li>
+          <li>台南限定紀念行動電源</li>
+        </ul>
+        <button class="card-cta">了解更多 →</button>
+      </div>
+    </div>
+
+    <!-- Card 2: Bicycle -->
+    <div class="service-card reveal reveal-delay-2" onclick="openModal('bicycle')">
+      <div class="card-top-border"></div>
+      <div class="card-img-wrap">
+        <img src="62322070-52A4-473F-AEB8-A5B0249DB150.png" alt="自行車古鎮之旅" loading="lazy">
+        <div class="card-img-overlay"></div>
+        <div class="card-img-label">自行車古鎮之旅</div>
+      </div>
+      <div class="card-body">
+        <div class="card-price-badge">
+          <span class="amount">800起</span>
+          <span class="unit">NTD</span>
+        </div>
+        <div class="card-title">穿梭古巷 · 邂逅美好</div>
+        <p class="card-desc">騎上復古自行車，穿梭在台南古老的巷弄之間，以最悠閒的方式探索這座城市的千年歷史與文化底蘊。</p>
+        <ul class="features-list">
+          <li>三種套餐任您選擇</li>
+          <li>古鎮輕鬆騎行體驗</li>
+          <li>專業攝影服務（表現套餐）</li>
+          <li>情侶雙人專屬浪漫小禮物</li>
+        </ul>
+        <button class="card-cta">了解更多 →</button>
+      </div>
+    </div>
+
+    <!-- Card 3: E-Scooter -->
+    <div class="service-card reveal reveal-delay-3" onclick="openModal('escooter')">
+      <div class="card-top-border"></div>
+      <div class="card-img-wrap">
+        <img src="IMG_0743.png" alt="電動車古鎮之旅" loading="lazy">
+        <div class="card-img-overlay"></div>
+        <div class="card-img-label">電動車古鎮之旅</div>
+      </div>
+      <div class="card-body">
+        <div class="card-price-badge">
+          <span class="amount">10,000</span>
+          <span class="unit">NTD</span>
+        </div>
+        <div class="card-title">府城電騎 · 尊享體驗</div>
+        <p class="card-desc">乘坐復古電動車，穿梭台南府城每個角落，配備專屬旅拍服務與精美紀念品，為您打造最尊貴的古城探索體驗。</p>
+        <ul class="features-list">
+          <li>府城全域自在騎行</li>
+          <li>24小時專屬旅拍服務</li>
+          <li>精選精美電子照片（20張）</li>
+          <li>精美府城伴手禮 + 雙人同行優惠</li>
+        </ul>
+        <button class="card-cta">了解更多 →</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Wave divider -->
+<div class="wave-divider">
+  <svg viewBox="0 0 1440 60" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
+    <path d="M0,30 C240,60 480,0 720,30 C960,60 1200,0 1440,30 L1440,60 L0,60 Z" fill="#5C0E0E"/>
+  </svg>
+</div>
+
+<!-- ── PLANS SECTION ── -->
+<section class="plans-section" id="plans">
+  <div class="section-header reveal">
+    <div class="section-tag">✦ 自行車套餐 BICYCLE PACKAGES ✦</div>
+    <h2 class="section-title" style="color:var(--cream)">三種套餐・任您選擇</h2>
+    <div class="section-divider"><span style="color:var(--gold)">❦</span></div>
+    <p style="color:rgba(245,237,214,0.7); font-size:1rem; letter-spacing:0.1em;">從輕鬆體驗到浪漫雙人，總有一款適合您</p>
+  </div>
+
+  <div class="plans-grid">
+    <div class="plan-card reveal reveal-delay-1">
+      <div class="plan-icon">🚲</div>
+      <div class="plan-name">基本套餐</div>
+      <div class="plan-subtitle">體驗 · EXPERIENCE</div>
+      <div class="plan-price"><sup>NTD </sup>800</div>
+      <div class="plan-divider"></div>
+      <ul class="plan-features">
+        <li><span>✦</span>古鎮輕鬆騎行體驗</li>
+        <li><span>✦</span>推薦路線地圖提供</li>
+        <li><span>✦</span>簡易裝備提供</li>
+      </ul>
+      <button class="plan-btn" onclick="callNow()">立即預約</button>
+    </div>
+
+    <div class="plan-card featured reveal reveal-delay-2">
+      <div class="plan-icon">📸</div>
+      <div class="plan-name">表現套餐</div>
+      <div class="plan-subtitle">拍照 · PHOTOGRAPHY</div>
+      <div class="plan-price"><sup>NTD </sup>1,500</div>
+      <div class="plan-divider"></div>
+      <ul class="plan-features">
+        <li><span>✦</span>專業路線規劃</li>
+        <li><span>✦</span>旅拍攝影服務</li>
+        <li><span>✦</span>精美電子照片</li>
+      </ul>
+      <button class="plan-btn" onclick="callNow()">立即預約</button>
+    </div>
+
+    <div class="plan-card reveal reveal-delay-3">
+      <div class="plan-icon">💕</div>
+      <div class="plan-name">情侶套餐</div>
+      <div class="plan-subtitle">雙人 · COUPLE</div>
+      <div class="plan-price"><sup>NTD </sup>2,500</div>
+      <div class="plan-divider"></div>
+      <ul class="plan-features">
+        <li><span>✦</span>雙人自行車</li>
+        <li><span>✦</span>專屬旅拍服務</li>
+        <li><span>✦</span>浪漫小禮物</li>
+      </ul>
+      <button class="plan-btn" onclick="callNow()">立即預約</button>
+    </div>
+  </div>
+</section>
+
+<!-- Wave -->
+<div class="wave-divider" style="background:#5C0E0E">
+  <svg viewBox="0 0 1440 60" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
+    <path d="M0,30 C240,0 480,60 720,30 C960,0 1200,60 1440,30 L1440,0 L0,0 Z" fill="#5C0E0E"/>
+    <path d="M0,30 C240,0 480,60 720,30 C960,0 1200,60 1440,30 L1440,60 L0,60 Z" fill="#EDE0C4"/>
+  </svg>
+</div>
+
+<!-- ── WHY US ── -->
+<section class="features-section" id="why">
+  <div class="section-header reveal">
+    <div class="section-tag">✦ 為何選擇我們 WHY CHOOSE US ✦</div>
+    <h2 class="section-title">慢遊時光・專屬體驗</h2>
+    <div class="section-divider"><span>❦</span></div>
+  </div>
+  <div class="features-row">
+    <div class="feature-item reveal reveal-delay-1">
+      <div class="feature-icon-wrap">🗺️</div>
+      <div class="feature-title">專業路線規劃</div>
+      <p class="feature-text">深度挖掘台南府城的每一條巷弄，為您量身打造最具文化底蘊的騎行路線。</p>
+    </div>
+    <div class="feature-item reveal reveal-delay-2">
+      <div class="feature-icon-wrap">📸</div>
+      <div class="feature-title">專業旅拍服務</div>
+      <p class="feature-text">配備專業攝影師，在古色古香的街道留下您最美麗的身影與珍貴回憶。</p>
+    </div>
+    <div class="feature-item reveal reveal-delay-3">
+      <div class="feature-icon-wrap">⚡</div>
+      <div class="feature-title">隨時充電補給</div>
+      <p class="feature-text">府城電騎行動電源服務，讓您的手機全程滿電，隨時分享旅途精彩。</p>
+    </div>
+    <div class="feature-item reveal reveal-delay-1">
+      <div class="feature-icon-wrap">🎁</div>
+      <div class="feature-title">限定紀念禮品</div>
+      <p class="feature-text">精美府城地標圖騰伴手禮，帶走台南獨一無二的美好記憶。</p>
+    </div>
+    <div class="feature-item reveal reveal-delay-2">
+      <div class="feature-icon-wrap">🏮</div>
+      <div class="feature-title">在地文化體驗</div>
+      <p class="feature-text">深入了解台南的歷史文化，以騎行的方式感受這座古城的千年底蘊。</p>
+    </div>
+  </div>
+</section>
+
+<!-- ── CONTACT ── -->
+<section class="contact-section" id="contact">
+  <span class="contact-tag">✦ 立即預約 BOOK NOW ✦</span>
+  <h2 class="contact-title">開始您的古城之旅</h2>
+  <p class="contact-subtitle">撥打預約專線，我們為您量身安排最完美的台南慢遊體驗</p>
+  <a href="tel:0983471364" class="contact-phone">
+    📞 0983 · 471 · 364
+  </a>
+  <div class="contact-info">
+    <div class="info-item">
+      <strong>服務地點</strong>
+      台南市府城古鎮區域
+    </div>
+    <div class="info-item">
+      <strong>服務時間</strong>
+      每日 08:00 — 20:00
+    </div>
+    <div class="info-item">
+      <strong>預約方式</strong>
+      電話預約 / 現場洽詢
+    </div>
+    <div class="info-item">
+      <strong>套餐起價</strong>
+      800 NTD 起
+    </div>
+  </div>
+</section>
+
+<footer>
+  <p>© 2025 <span>騎遇古韻 · 府城電騎 TAINAN ECO-CYCLE</span> · 台南府城慢遊服務 · All Rights Reserved</p>
+  <p style="margin-top:0.5rem">穿梭古巷 · 邂逅美好 · 慢遊時光</p>
+</footer>
+
+<!-- ── MODALS ── -->
+<div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
+  <div class="modal" id="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="modalTitle"></div>
+      <button class="modal-close" onclick="closeModal(null)">✕</button>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+  </div>
+</div>
+
+<script>
+// ── CURSOR ──
+const cursor = document.getElementById('cursor');
+document.addEventListener('mousemove', e => {
+  cursor.style.left = e.clientX - 10 + 'px';
+  cursor.style.top = e.clientY - 10 + 'px';
+});
+document.querySelectorAll('a, button, .service-card').forEach(el => {
+  el.addEventListener('mouseenter', () => cursor.classList.add('active'));
+  el.addEventListener('mouseleave', () => cursor.classList.remove('active'));
+});
+
+// ── LANTERNS ──
+const container = document.getElementById('lanternContainer');
+const lanternEmoji = ['🏮','🔴','⭕'];
+function createLantern() {
+  const l = document.createElement('div');
+  l.className = 'lantern';
+  l.textContent = lanternEmoji[Math.floor(Math.random()*lanternEmoji.length)];
+  l.style.left = Math.random() * 100 + 'vw';
+  l.style.fontSize = (1 + Math.random() * 1.5) + 'rem';
+  const dur = 12 + Math.random() * 15;
+  l.style.animationDuration = dur + 's';
+  l.style.animationDelay = Math.random() * -dur + 's';
+  container.appendChild(l);
+  setTimeout(() => l.remove(), dur * 1000 + 2000);
+}
+for (let i = 0; i < 8; i++) createLantern();
+setInterval(createLantern, 3000);
+
+// ── PETALS ──
+function createPetal() {
+  const p = document.createElement('div');
+  p.className = 'petal';
+  p.style.left = Math.random() * 100 + 'vw';
+  p.style.top = '-20px';
+  const dur = 8 + Math.random() * 10;
+  p.style.animationDuration = dur + 's';
+  p.style.animationDelay = Math.random() * 5 + 's';
+  document.body.appendChild(p);
+  setTimeout(() => p.remove(), (dur + 5) * 1000);
+}
+for (let i = 0; i < 12; i++) createPetal();
+setInterval(createPetal, 2000);
+
+// ── SCROLL REVEAL ──
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) { e.target.classList.add('visible'); }
+  });
+}, { threshold: 0.1 });
+document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+// ── MODAL DATA ──
+const modalData = {
+  powerbank: {
+    title: '行動電源租賃 · 府城電騎',
+    img: 'IMG_0744.png',
+    content: `
+      <p class="modal-desc">
+        告別手機沒電的煩惱！台南府城電騎推出共享行動電源服務，<br>
+        讓您在遊覽台南古蹟的途中，隨時隨地保持電量充足。
+      </p>
+      <p class="modal-desc">
+        <strong>💰 尊享體驗價格：800 NTD</strong>
+      </p>
+      <ul class="features-list" style="margin-bottom:1.5rem">
+        <li>隨時隨地輕鬆借還，超便利共享服務</li>
+        <li>適用多種充電設備，含三合一充電線</li>
+        <li>專屬府城地標圖騰設計，限定版收藏</li>
+        <li>台南限定紀念行動電源，完美伴手禮</li>
+      </ul>
+      <button class="card-cta" onclick="callNow()" style="max-width:300px;margin:0 auto;display:block">📞 立即預約 0983471364</button>
+    `
+  },
+  bicycle: {
+    title: '自行車古鎮之旅 · 穿梭古巷',
+    img: '62322070-52A4-473F-AEB8-A5B0249DB150.png',
+    content: `
+      <p class="modal-desc">
+        騎上復古自行車，以悠閒的速度穿梭台南古老巷弄，<br>
+        感受這座千年古都的獨特氛圍與文化底蘊。
+      </p>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-bottom:1.5rem">
+        <div style="background:var(--red);color:var(--cream);padding:1rem;text-align:center;border:1px solid var(--gold)">
+          <div style="font-size:1.5rem;font-weight:900">800</div>
+          <div style="font-size:0.75rem;opacity:0.8">NTD</div>
+          <div style="font-size:0.9rem;margin-top:0.3rem;font-weight:700">基本套餐</div>
+        </div>
+        <div style="background:var(--dark-red);color:var(--cream);padding:1rem;text-align:center;border:2px solid var(--gold)">
+          <div style="font-size:1.5rem;font-weight:900">1,500</div>
+          <div style="font-size:0.75rem;opacity:0.8">NTD</div>
+          <div style="font-size:0.9rem;margin-top:0.3rem;font-weight:700">表現套餐</div>
+        </div>
+        <div style="background:var(--red);color:var(--cream);padding:1rem;text-align:center;border:1px solid var(--gold)">
+          <div style="font-size:1.5rem;font-weight:900">2,500</div>
+          <div style="font-size:0.75rem;opacity:0.8">NTD</div>
+          <div style="font-size:0.9rem;margin-top:0.3rem;font-weight:700">情侶套餐</div>
+        </div>
+      </div>
+      <button class="card-cta" onclick="callNow()" style="max-width:300px;margin:0 auto;display:block">📞 立即預約 0983471364</button>
+    `
+  },
+  escooter: {
+    title: '電動車古鎮之旅 · 尊享體驗',
+    img: 'IMG_0743.png',
+    content: `
+      <p class="modal-desc">
+        乘坐復古電動車，以最輕鬆的方式遊覽台南府城的每個角落。<br>
+        配備專屬旅拍服務，讓每個瞬間都成為珍貴的美好回憶。
+      </p>
+      <p class="modal-desc">
+        <strong>💰 尊享體驗價格：10,000 NTD</strong>
+      </p>
+      <ul class="features-list" style="margin-bottom:1.5rem">
+        <li>府城全域自在騎行，暢遊每個角落</li>
+        <li>精選深度路線地圖，探索隱藏景點</li>
+        <li>24小時專屬旅拍服務，隨行攝影師</li>
+        <li>精選精美電子照片（20張）珍藏版</li>
+        <li>精美府城伴手禮，帶走台南的美好</li>
+        <li>雙人同行優惠，分享美好時光</li>
+      </ul>
+      <button class="card-cta" onclick="callNow()" style="max-width:300px;margin:0 auto;display:block">📞 立即預約 0983471364</button>
+    `
+  }
+};
+
+function openModal(type) {
+  const data = modalData[type];
+  if (!data) return;
+  document.getElementById('modalTitle').textContent = data.title;
+  document.getElementById('modalBody').innerHTML = `
+    <img src="${data.img}" class="modal-img" alt="${data.title}">
+    ${data.content}
+  `;
+  document.getElementById('modalOverlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeModal(event) {
+  if (event && event.target !== document.getElementById('modalOverlay')) return;
+  document.getElementById('modalOverlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function callNow() {
+  window.location.href = 'tel:0983471364';
+}
+
+// ── PARALLAX HERO ──
+window.addEventListener('scroll', () => {
+  const scrollY = window.scrollY;
+  const hero = document.querySelector('header');
+  if (hero && scrollY < window.innerHeight) {
+    hero.style.backgroundPositionY = scrollY * 0.4 + 'px';
+  }
+});
+
+// ── KEYBOARD CLOSE ──
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeModal(null);
+});
+</script>
+</body>
+</html>
